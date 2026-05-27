@@ -26,8 +26,28 @@ void add_word(WordCount **hash_table, const char *word) {
   unsigned int index = hash(word);
   WordCount *entry = hash_table[index];
 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+  // 查找是否已经存在该单词
+  while (entry != NULL) {
+    if (strcmp(entry->word, word) == 0) {
+      // 单词已存在，增加计数
+      entry->count++;
+      return;
+    }
+    entry = entry->next;
+  }
+
+  // 单词不存在，创建新节点
+  WordCount *new_entry = malloc(sizeof(WordCount));
+  if (!new_entry) {
+    perror("Failed to allocate memory");
+    exit(EXIT_FAILURE);
+  }
+  
+  strncpy(new_entry->word, word, MAX_WORD_LEN - 1);
+  new_entry->word[MAX_WORD_LEN - 1] = '\0';
+  new_entry->count = 1;
+  new_entry->next = hash_table[index];
+  hash_table[index] = new_entry;
 }
 
 // 打印单词统计结果
@@ -35,8 +55,23 @@ void print_word_counts(WordCount **hash_table) {
   printf("Word Count Statistics:\n");
   printf("======================\n");
 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+  int total_words = 0;
+  int unique_words = 0;
+  
+  // 遍历所有哈希桶
+  for (int i = 0; i < HASH_SIZE; i++) {
+    WordCount *entry = hash_table[i];
+    while (entry != NULL) {
+      printf("%-20s %d\n", entry->word, entry->count);
+      total_words += entry->count;
+      unique_words++;
+      entry = entry->next;
+    }
+  }
+  
+  printf("\nSummary:\n");
+  printf("Total words: %d\n", total_words);
+  printf("Unique words: %d\n", unique_words);
 }
 
 // 释放哈希表内存

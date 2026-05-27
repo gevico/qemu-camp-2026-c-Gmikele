@@ -10,14 +10,52 @@
 
 /* 判断字符 c 是否在分隔符集合 delim 中 */
 static int is_delim(char c, const char *delim) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    for (const char *p = delim; *p; p++) {
+        if (*p == c) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 /* 线程安全版本：通过 saveptr 维护调用状态，不使用静态变量 */
 char *strtok_r(char *str, const char *delim, char **saveptr) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    char *start;
+    char *end;
+
+    /* 确定扫描起始位置 */
+    if (str != NULL) {
+        start = str;
+    } else if (*saveptr != NULL) {
+        start = *saveptr;
+    } else {
+        return NULL; /* 没有更多的 token */
+    }
+
+    /* 跳过前导分隔符 */
+    while (*start != '\0' && is_delim(*start, delim)) {
+        start++;
+    }
+    if (*start == '\0') {
+        *saveptr = NULL;
+        return NULL;
+    }
+
+    /* 找到 token 结尾 */
+    end = start;
+    while (*end != '\0' && !is_delim(*end, delim)) {
+        end++;
+    }
+
+    /* 保存下次扫描位置 */
+    if (*end == '\0') {
+        *saveptr = NULL;
+    } else {
+        *end = '\0';         /* 用空字符替换分隔符 */
+        *saveptr = end + 1;  /* 下次从下一个字符开始 */
+    }
+
+    return start;
 }
 
 int main(void) {

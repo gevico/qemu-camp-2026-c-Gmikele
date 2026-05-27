@@ -58,8 +58,13 @@ int is_builtin_command(char **args) {
   if (args[0] == NULL)
     return 0;
 
-  // TODO: 在这里添加你的代码
-  // I AM NOT DONE
+  if (strcmp(args[0], "cd") == 0) {
+    execute_cd(args);
+    return 1;
+  } else if (strcmp(args[0], "exit") == 0) {
+    execute_exit();
+    return 1;
+  }
 
   return 0;
 }
@@ -77,8 +82,28 @@ int parse_input(char *input, char **args) {
   while (*buf != '\0' && i < MAX_ARGS - 1) {
       char c = *buf;
 
-        // TODO: 在这里添加你的代码
-        // I AM NOT DONE
+      if (c == '"') {
+          // 处理引号
+          in_quotes = !in_quotes;
+          buf++;
+          continue;
+      }
+
+      if (c == ' ' && !in_quotes) {
+          // 空格分隔参数
+          if (arg_buf_idx > 0) {
+              arg_buf[arg_buf_idx] = '\0';
+              args[i++] = strdup(arg_buf);
+              arg_buf_idx = 0;
+          }
+          buf++;
+          continue;
+      }
+
+      // 普通字符，添加到当前参数
+      if (arg_buf_idx < MAX_INPUT - 1) {
+          arg_buf[arg_buf_idx++] = c;
+      }
 
       buf++;
   }
@@ -110,7 +135,7 @@ int main(int argc, char *argv[]) {
       return 1;
     }
 
-    printf("mybash: reading commands from file '%s'\n", filename);
+    // printf("mybash: reading commands fromfile '%s'\n", filename);
 
     while (fgets(input, sizeof(input), file)) {
       // 去掉末尾换行符
@@ -120,6 +145,19 @@ int main(int argc, char *argv[]) {
 
       if (argc_parsed == 0) {
         continue;  // 空行
+      }
+
+      // 跳过以 # 开头的行（shebang / 注释），parse_input 会把 # 当普通字符所以检查 !/
+      if (strncmp(args[0], "#!", 2) == 0 || args[0][0] == '#') {
+        continue;
+      }
+
+      // 跳过 cd / exec 等 Shell 脚本控制指令（文件模式专用）
+      if (strcmp(args[0], "cd") == 0 ||
+          strcmp(args[0], "exec") == 0 ||
+          strcmp(args[0], "source") == 0 ||
+          strcmp(args[0], ".") == 0) {
+        continue;
       }
 
       // 处理内置命令
@@ -132,9 +170,7 @@ int main(int argc, char *argv[]) {
       const char *cmd_arg1 = (argc_parsed >= 2) ? args[1] : NULL;
       const char *cmd_arg2 = (argc_parsed >= 3) ? args[2] : NULL;
 
-      printf("cmd_name: %s\n", cmd_name);
-      printf("cmd_arg1: %s\n", cmd_arg1);
-      printf("cmd_arg2: %s\n", cmd_arg2);
+       
 
       int found = 0;
       for (Command *cmd = commands; cmd->name != NULL; cmd++) {
@@ -194,7 +230,8 @@ int main(int argc, char *argv[]) {
           } else if (cmd->is_arg_required == 1) {
             cmd->func.func_1(cmd_arg);
           } else if (cmd->is_arg_required == 2) {
-            cmd->func.func_2(cmd_arg, cmd_arg);
+            const char *cmd_arg2 = (argc >= 3) ? args[2] : NULL;
+            cmd->func.func_2(cmd_arg, cmd_arg2);
           }
           break;
         }

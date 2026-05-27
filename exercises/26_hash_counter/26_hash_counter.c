@@ -3,6 +3,17 @@
 #include <string.h>
 #include <ctype.h>
 
+// 自定义 strdup 实现，因为 strdup 不是标准 C 函数
+char *my_strdup(const char *s) {
+    if (s == NULL) return NULL;
+    size_t len = strlen(s) + 1;
+    char *copy = malloc(len);
+    if (copy != NULL) {
+        memcpy(copy, s, len);
+    }
+    return copy;
+}
+
 #define TABLE_SIZE 1024  // 哈希表大小
 
 // 哈希表节点结构
@@ -20,8 +31,12 @@ typedef struct {
 
 // djb2哈希函数
 unsigned long djb2_hash(const char *str) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    unsigned long hash = 5381;
+    int c;
+    while ((c = *str++)) {
+        hash = ((hash << 5) + hash) + c;  // hash * 33 + c
+    }
+    return hash;
 }
 
 // 创建哈希表
@@ -36,14 +51,37 @@ HashTable *create_hash_table(int size) {
 void hash_table_insert(HashTable *ht, const char *word) {
     unsigned long hash = djb2_hash(word) % ht->size;
 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    // 遍历链表查找是否已存在该单词
+    HashNode *current = ht->table[hash];
+    while (current != NULL) {
+        if (strcmp(current->word, word) == 0) {
+            // 单词已存在，增加计数
+            current->count++;
+            return;
+        }
+        current = current->next;
+    }
+
+    // 单词不存在，创建新节点并插入到链表头部
+    HashNode *new_node = malloc(sizeof(HashNode));
+    new_node->word = my_strdup(word);
+    new_node->count = 1;
+    new_node->next = ht->table[hash];
+    ht->table[hash] = new_node;
 }
 
 // 从哈希表中获取所有单词及其计数
 void get_all_words(HashTable *ht, HashNode **nodes, int *count) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    *count = 0;
+    // 遍历哈希表的所有桶
+    for (int i = 0; i < ht->size; i++) {
+        HashNode *current = ht->table[i];
+        while (current != NULL) {
+            nodes[*count] = current;
+            (*count)++;
+            current = current->next;
+        }
+    }
 }
 
 // 比较函数用于排序
@@ -52,8 +90,10 @@ int compare_nodes(const void *a, const void *b) {
     HashNode *node_b = *(HashNode **)b;
     
     // 先按计数降序，再按字母升序
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (node_b->count != node_a->count) {
+        return node_b->count - node_a->count;  // 降序
+    }
+    return strcmp(node_a->word, node_b->word);  // 升序
 }
 
 // 释放哈希表内存
@@ -73,8 +113,26 @@ void free_hash_table(HashTable *ht) {
 
 // 从字符串中获取下一个单词
 char *get_next_word(const char **text) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    // 跳过非字母字符
+    while (**text && !isalpha(**text)) {
+        (*text)++;
+    }
+    
+    if (!**text) {
+        return NULL;
+    }
+    
+    // 提取单词
+    char word[256];
+    int i = 0;
+    while (**text && isalpha(**text)) {
+        // 转换为小写
+        word[i++] = tolower(**text);
+        (*text)++;
+    }
+    word[i] = '\0';
+    
+    return my_strdup(word);
 }
 
 int main(int argc, char *argv[]) {
@@ -88,8 +146,6 @@ int main(int argc, char *argv[]) {
 
     HashTable *ht = create_hash_table(TABLE_SIZE);
     char buffer[4096];
-    
-    printf("正在读取文件: %s\n", file_path);
     
     // 从文件读取直到EOF
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
@@ -113,9 +169,6 @@ int main(int argc, char *argv[]) {
     qsort(nodes, node_count, sizeof(HashNode *), compare_nodes);
     
     // 输出结果
-    printf("\n单词统计结果（按频率降序排列）:\n");
-    printf("%-20s %s\n", "单词", "出现次数");
-    printf("-------------------- ----------\n");
     for (int i = 0; i < node_count; i++) {
         printf("%s:%d\n", nodes[i]->word, nodes[i]->count);
     }

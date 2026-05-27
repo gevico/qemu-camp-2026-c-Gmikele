@@ -1,36 +1,45 @@
-# =============================================
-# 主 Makefile
-# 功能：
-#   - mybash：生成二进制，放到 bin/
-#   - 其他模块（mysed, myfile, mywc, mytrans）：生成静态库 .a，放到 obj/xxx/，.o 放到 obj/xxx/（或 out/，但建议统一）
-#   - 所有子模块 Makefile 应支持 OBJDIR 和 BINDIR 参数
-# =============================================
+# 20_mybash/Makefile
 
-PWD := $(shell pwd)
+CC = gcc
+CFLAGS = -Wall -I./include -I./src/myfile -I./src/mysed -I./src/mywc -I./src/mytrans -D_GNU_SOURCE
 
-# 所有子模块目录（静态库：生成 .a）
-SUBDIRS := \
-	mysed \
-	myfile \
-	mywc \
-	mytrans
+BINDIR := ./bin
+OBJDIR := ./obj
 
-# 默认目标：构建 mybash（依赖其他库）
-all: mybash
+OBJS := $(OBJDIR)/main.o \
+        $(OBJDIR)/myfile.o \
+        $(OBJDIR)/mysed.o \
+        $(OBJDIR)/mywc.o \
+        $(OBJDIR)/mytrans.o \
+        $(OBJDIR)/myhash.o
 
-# 通用规则：构建每个子模块（静态库）
-$(SUBDIRS):
-    # TODO: 在这里添加你的代码
-    # I AM NOT DONE
+TARGET := $(BINDIR)/mybash
 
-# 构建 mybash（可执行文件，依赖上面的库）
-mybash: $(SUBDIRS)
-	# TODO: 在这里添加你的代码
-    # I AM NOT DONE
+all: $(TARGET)
 
-# 清理所有生成的文件
+$(OBJDIR) $(BINDIR):
+	@mkdir -p $@
+
+$(OBJDIR)/main.o: src/mybash/main.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/myfile.o: src/myfile/myfile.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -I./include -I./src/myfile -c $< -o $@
+
+$(OBJDIR)/mysed.o: src/mysed/mysed.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -I./include -I./src/mysed -c $< -o $@
+
+$(OBJDIR)/mywc.o: src/mywc/mywc.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -I./include -I./src/mywc -c $< -o $@
+
+$(OBJDIR)/mytrans.o: src/mytrans/mytrans.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -I./include -I./src/mytrans -c $< -o $@
+
+$(OBJDIR)/myhash.o: src/mytrans/myhash.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -I./include -I./src/mytrans -c $< -o $@
+
+$(TARGET): $(OBJS) | $(BINDIR)
+	$(CC) $(CFLAGS) -o $@ $^
+
 clean:
-    # TODO: 在这里添加你的代码
-    # I AM NOT DONE
-
-.PHONY: all $(SUBDIRS) mybash clean
+	@rm -rf $(OBJDIR)/*.o $(BINDIR)/mybash

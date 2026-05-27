@@ -5,30 +5,34 @@
 #include "doubly_circular_queue.h"
 
 // 使用通用双向链表实现队列：
-// - 入队：头插（insert(make_node(v)))
-// - 出队：删除最后一个结点（tail 前的结点）
-
-static link g_last = NULL;
-static void capture_last(link p) { g_last = p; }
-static link get_last(void) {
-    g_last = NULL;
-    traverse(capture_last);
-    return g_last;  // 若为空表示队列为空
-}
+// - 入队：头插（insert(make_node(v))）
+// - 出队：删除第一个结点（head 后的结点）
 
 static void enqueue_int(int v) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    insert(make_node(v));
 }
 
 static int dequeue_int(int *out) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    // 获取第一个节点（队首）
+    if (head->next == tail) {
+        return 0;  // 队列为空
+    }
+    link first = head->next;
+    if (out) {
+        *out = first->data;
+    }
+    delete(first);
+    free(first);
+    return 1;
 }
 
 static void print_dequeue_n(int n) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    for (int i = 0; i < n; i++) {
+        int val;
+        if (dequeue_int(&val)) {
+            printf("%d ", val);
+        }
+    }
 }
 
 int main(void) {

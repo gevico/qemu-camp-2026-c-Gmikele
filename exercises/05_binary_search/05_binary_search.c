@@ -15,10 +15,23 @@ Student students[MAX_STUDENTS];
 int n;
 
 int binary_search(const char *target_name) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
-}
+    int left = 0;
+    int right = n - 1;
 
+    while (left <= right) {
+        int mid = left + (right - left) / 2;   // 避免溢出
+        int cmp = strcmp(students[mid].name, target_name);
+
+        if (cmp == 0) {
+            return mid;           // 找到
+        } else if (cmp < 0) {
+            left = mid + 1;       // 目标在右半
+        } else {
+            right = mid - 1;      // 目标在左半
+        }
+    }
+    return -1;                    // 未找到
+}
 int main(void) {
     // 打开文件读取已排序的学生信息
     FILE *file = fopen("05_students.txt", "r");

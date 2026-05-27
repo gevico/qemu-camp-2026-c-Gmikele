@@ -13,8 +13,39 @@ typedef struct {
 Student students[MAX_STUDENTS];
 
 void quick_sort(int left, int right) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (left >= right) return;   // 递归基
+
+    // 分区：选最右边元素为基准，返回基准最终位置
+    int pivot_index = partition(left, right);
+
+    // 递归排序左半部分和右半部分
+    quick_sort(left, pivot_index - 1);
+    quick_sort(pivot_index + 1, right);
+}
+
+// 分区函数
+int partition(int left, int right) {
+    // 基准值（最后一个元素）
+    int pivot_score = students[right].score;
+    // i 指向小于基准区域的最后一个位置
+    int i = left - 1;
+
+    for (int j = left; j < right; j++) {
+        // 降序：分数高的放左边
+        if (students[j].score >= pivot_score) {
+            i++;
+            // 交换整个结构体
+            Student temp = students[i];
+            students[i] = students[j];
+            students[j] = temp;
+        }
+    }
+    // 把基准放到正确位置（i+1）
+    Student temp = students[i + 1];
+    students[i + 1] = students[right];
+    students[right] = temp;
+
+    return i + 1;   // 返回基准的最终索引
 }
 
 int main(void) {

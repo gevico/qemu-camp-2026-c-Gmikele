@@ -14,9 +14,31 @@ Student students[MAX_STUDENTS];
 Student temp[MAX_STUDENTS];
 
 void merge_sort(int left, int right) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (left >= right) return;          // 1个元素或空区间，有序
+
+    int mid = (left + right) / 2;       // 取中点
+    merge_sort(left, mid);              // 排序左半
+    merge_sort(mid + 1, right);         // 排序右半
+
+    // 合并两个有序区间 [left, mid] 和 [mid+1, right]
+    int i = left, j = mid + 1, k = 0;
+
+    while (i <= mid && j <= right) {
+        if (students[i].score >= students[j].score) {
+            temp[k++] = students[i++];
+        } else {
+            temp[k++] = students[j++];
+        }
+    }
+    while (i <= mid) temp[k++] = students[i++];
+    while (j <= right) temp[k++] = students[j++];
+
+    // 将排好序的 temp 拷贝回原数组
+    for (int p = 0; p < k; p++) {
+        students[left + p] = temp[p];
+    }
 }
+
 
 int main(void) {
     FILE *file = fopen("02_students.txt", "r");

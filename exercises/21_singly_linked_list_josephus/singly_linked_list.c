@@ -4,12 +4,16 @@
 #include <stdlib.h>
 
 // 全局头指针
-static link head = NULL;
+link head = NULL;
 
 // 创建新节点
 link make_node(unsigned char item) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    link p = malloc(sizeof(*p));
+    if (p) {
+        p->item = item;
+        p->next = NULL;
+    }
+    return p;
 }
 
 // 释放节点
@@ -17,48 +21,90 @@ void free_node(link p) { free(p); }
 
 // 查找节点
 link search(unsigned char key) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    for (link p = head; p != NULL; p = p->next) {
+        if (p->item == key) {
+            return p;
+        }
+    }
+    return NULL;
 }
 
 // 在链表头部插入节点
 void insert(link p) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    p->next = head;
+    head = p;
 }
 
 // 删除指定节点
 void delete(link p) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (head == NULL || p == NULL) return;
+    
+    if (head == p) {
+        head = p->next;
+        free(p);
+        return;
+    }
+    
+    for (link q = head; q != NULL; q = q->next) {
+        if (q->next == p) {
+            q->next = p->next;
+            free(p);
+            return;
+        }
+    }
 }
 
 // 遍历链表
 void traverse(void (*visit)(link)) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    for (link p = head; p != NULL; p = p->next) {
+        visit(p);
+    }
 }
 
 // 销毁整个链表
 void destroy(void) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (head == NULL) return;
+    
+    // 找到最后一个节点
+    link p = head;
+    while (p->next != NULL && p->next != head) {
+        p = p->next;
+    }
+    
+    // 如果链表是环形的，断开环
+    if (p->next == head) {
+        p->next = NULL;
+    }
+    
+    // 现在释放所有节点
+    p = head;
+    while (p != NULL) {
+        link next = p->next;
+        free(p);
+        p = next;
+    }
+    head = NULL;
 }
 
 // 在链表头部推入节点
 void push(link p) { 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
- }
+    p->next = head;
+    head = p;
+}
 
 // 从链表头部弹出节点
 link pop(void) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (head == NULL) return NULL;
+    link p = head;
+    head = head->next;
+    return p;
 }
 
 // 释放链表内存
-void free_list(link list_head) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+void free_list(link head) {
+    while (head != NULL) {
+        link next = head->next;
+        free(head);
+        head = next;
+    }
 }

@@ -8,6 +8,12 @@ struct node
     link prev, next;
 };
 
+// 外部声明头尾哨兵
+extern struct node headsentinel;
+extern struct node tailsentinel;
+extern link head;
+extern link tail;
+
 link make_node(int data);
 void free_node(link p);
 link search(int key);

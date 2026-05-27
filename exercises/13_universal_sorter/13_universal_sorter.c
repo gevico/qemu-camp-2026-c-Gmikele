@@ -40,8 +40,96 @@ void processFile(const char *filename) {
     printf("=== 处理数据来自: %s ===\n", filename);
 
     switch (choice) {
-        // TODO: 在这里添加你的代码
-        // I AM NOT DONE
+        case 1: { // 整数排序
+            int arr[20];
+            for (int i = 0; i < n; i++) {
+                if (fscanf(fin, "%d", &arr[i]) != 1) {
+                    printf("错误: 读取整数失败\n");
+                    return;
+                }
+            }
+            
+            printf("原始整数数组: ");
+            for (int i = 0; i < n; i++) {
+                printf("%d ", arr[i]);
+            }
+            printf("\n");
+            
+            sort(arr, n, sizeof(int), compareInt);
+            
+            printf("排序后整数数组: ");
+            for (int i = 0; i < n; i++) {
+                printf("%d ", arr[i]);
+            }
+            printf("\n");
+            break;
+        }
+        
+        case 2: { // 浮点数排序
+            float arr[20];
+            for (int i = 0; i < n; i++) {
+                if (fscanf(fin, "%f", &arr[i]) != 1) {
+                    printf("错误: 读取浮点数失败\n");
+                    return;
+                }
+            }
+            
+            printf("原始浮点数数组: ");
+            for (int i = 0; i < n; i++) {
+                printf("%.2f ", arr[i]);
+            }
+            printf("\n");
+            
+            sort(arr, n, sizeof(float), compareFloat);
+            
+            printf("排序后浮点数数组: ");
+            for (int i = 0; i < n; i++) {
+                printf("%.2f ", arr[i]);
+            }
+            printf("\n");
+            break;
+        }
+        
+        case 3: { // 字符串排序
+            char *arr[20];
+            char buffer[100];
+            
+            for (int i = 0; i < n; i++) {
+                if (fscanf(fin, "%s", buffer) != 1) {
+                    printf("错误: 读取字符串失败\n");
+                    return;
+                }
+                arr[i] = strdup(buffer);
+                if (!arr[i]) {
+                    printf("错误: 内存分配失败\n");
+                    return;
+                }
+            }
+            
+            printf("原始字符串数组: ");
+            for (int i = 0; i < n; i++) {
+                printf("%s ", arr[i]);
+            }
+            printf("\n");
+            
+            sort(arr, n, sizeof(char*), compareString);
+            
+            printf("排序后字符串数组: ");
+            for (int i = 0; i < n; i++) {
+                printf("%s ", arr[i]);
+            }
+            printf("\n");
+            
+            // 释放内存
+            for (int i = 0; i < n; i++) {
+                free(arr[i]);
+            }
+            break;
+        }
+        
+        default:
+            printf("错误: 未知的数据类型选择 %d\n", choice);
+            break;
     }
 
     fclose(fin);
