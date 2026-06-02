@@ -7,7 +7,7 @@ WordCount **wc_create_hash_table() {
 }
 
 // 简单的哈希函数
-unsigned int hash(const char *word) {
+static unsigned int wc_hash(const char *word) {
   unsigned long hash = 5381;
   int c;
   while ((c = *word++))
@@ -23,68 +23,59 @@ char to_lower(char c) { return tolower(c); }
 
 // 添加单词到哈希表
 void add_word(WordCount **hash_table, const char *word) {
-  unsigned int index = hash(word);
-  WordCount *entry = hash_table[index];
-
-  // 查找是否已经存在该单词
-  while (entry != NULL) {
-    if (strcmp(entry->word, word) == 0) {
-      // 单词已存在，增加计数
-      entry->count++;
-      return;
+    unsigned int index = wc_hash(word);
+    WordCount *current = hash_table[index];
+    
+    // 查找是否已存在该单词
+    while (current != NULL) {
+        if (strcmp(current->word, word) == 0) {
+            current->count++;
+            return;
+        }
+        current = current->next;
     }
-    entry = entry->next;
-  }
-
-  // 单词不存在，创建新节点
-  WordCount *new_entry = malloc(sizeof(WordCount));
-  if (!new_entry) {
-    perror("Failed to allocate memory");
-    exit(EXIT_FAILURE);
-  }
-  
-  strncpy(new_entry->word, word, MAX_WORD_LEN - 1);
-  new_entry->word[MAX_WORD_LEN - 1] = '\0';
-  new_entry->count = 1;
-  new_entry->next = hash_table[index];
-  hash_table[index] = new_entry;
+    
+    // 创建新节点
+    WordCount *new_node = malloc(sizeof(WordCount));
+    if (!new_node) {
+        perror("Memory allocation failed");
+        exit(EXIT_FAILURE);
+    }
+    
+    strncpy(new_node->word, word, MAX_WORD_LEN - 1);
+    new_node->word[MAX_WORD_LEN - 1] = '\0';
+    new_node->count = 1;
+    new_node->next = hash_table[index];
+    hash_table[index] = new_node;
 }
 
 // 打印单词统计结果
 void print_word_counts(WordCount **hash_table) {
-  printf("Word Count Statistics:\n");
-  printf("======================\n");
-
   int total_words = 0;
   int unique_words = 0;
   
-  // 遍历所有哈希桶
   for (int i = 0; i < HASH_SIZE; i++) {
-    WordCount *entry = hash_table[i];
-    while (entry != NULL) {
-      printf("%-20s %d\n", entry->word, entry->count);
-      total_words += entry->count;
+    WordCount *current = hash_table[i];
+    while (current != NULL) {
+      printf("%-20s %d\n", current->word, current->count);
+      total_words += current->count;
       unique_words++;
-      entry = entry->next;
+      current = current->next;
     }
   }
-  
-  printf("\nSummary:\n");
-  printf("Total words: %d\n", total_words);
-  printf("Unique words: %d\n", unique_words);
 }
 
 // 释放哈希表内存
 void wc_free_hash_table(WordCount **hash_table) {
-  for (int i = 0; i < HASH_SIZE; i++) {
-    WordCount *entry = hash_table[i];
-    while (entry != NULL) {
-      WordCount *temp = entry;
-      entry = entry->next;
-      free(temp);
+    for (int i = 0; i < HASH_SIZE; i++) {
+        WordCount *current = hash_table[i];
+        while (current != NULL) {
+            WordCount *next = current->next;
+            free(current);
+            current = next;
+        }
     }
-  }
-  free(hash_table);
+    free(hash_table);
 }
 
 // 处理文件并统计单词
@@ -125,7 +116,7 @@ void process_file(const char *filename) {
   wc_free_hash_table(hash_table);
 }
 
-int __cmd_mywc(const char* filename) {
+int __cmd_mywc(const char *filename) {
   process_file(filename);
   return 0;
 }

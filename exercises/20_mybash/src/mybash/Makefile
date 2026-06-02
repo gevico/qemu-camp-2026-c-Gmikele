@@ -1,36 +1,36 @@
 # src/mybash/Makefile
 
 CC = gcc
-CFLAGS = -Wall -I../../include -I../myfile -I../mysed -I../mywc -I../mytrans -D_GNU_SOURCE
+CFLAGS = -Wall -I../../include -std=c11 -D_POSIX_C_SOURCE=200809L
+
+REPO_ROOT ?= ../..
+BINDIR := $(REPO_ROOT)/bin
+OBJDIR := $(REPO_ROOT)/obj/mybash
 
 TARGET := mybash
-BINDIR ?= ../../bin
-OBJDIR ?= ../../obj
-
-# 收集所有 .c 文件（排除 main.c，由主 Makefile 单独处理）
-LIB_SRCS := ../myfile/myfile.c ../mysed/mysed.c ../mywc/mywc.c \
-            ../mytrans/mytrans.c ../mytrans/myhash.c
-LIB_OBJS := $(LIB_SRCS:.c=.o)
-LIB_OBJS := $(patsubst %.o,$(OBJDIR)/%.o,$(LIB_OBJS))
-
 TARGET_PATH := $(BINDIR)/$(TARGET)
 
+SRCS := main.c
+OBJS := $(addprefix $(OBJDIR)/,$(SRCS:.c=.o))
+
+LINKDIRS := -L$(REPO_ROOT)/obj/myfile -L$(REPO_ROOT)/obj/mysed -L$(REPO_ROOT)/obj/mywc -L$(REPO_ROOT)/obj/mytrans
+LDLIBS := -lmyfile -lmysed -lmywc -lmytrans
+
 all: $(TARGET_PATH)
+
+$(BINDIR) $(OBJDIR):
+	mkdir -p $@
 
 $(OBJDIR)/%.o: %.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJDIR)/%.o: ../myfile/%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -I../myfile -c $< -o $@
-
-$(OBJDIR)/%.o: ../mysed/%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -I../mysed -c $< -o $@
-
-$(OBJDIR)/%.o: ../mywc/%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -I../mywc -c $< -o $@
-
-$(OBJDIR)/%.o: ../mytrans/%.c | $(OBJDIR)
-	$(CC) $(CFLAGS) -I../mytrans -c $< -o $@
+$(TARGET_PATH): $(OBJS) | $(BINDIR)
+	$(CC) -o $@ $(OBJS) $(LINKDIRS) $(LDLIBS)
+	cp -f $@ $(REPO_ROOT)/20_mybash
+	chmod +x $(REPO_ROOT)/20_mybash
 
 clean:
-	@rm -rf $(OBJDIR)/*.o
+	rm -rf $(OBJDIR) $(TARGET_PATH)
+	rm -f $(REPO_ROOT)/20_mybash
+
+.PHONY: all clean

@@ -1,8 +1,14 @@
-myfile /workspace/exercises/20_mybash/bin/mybash
-myfile /workspace/exercises/20_mybash/obj/mybash/main.o
+#!/bin/bash
+# Test commands for mybash - writes a temp script then runs mybash on it
+cd /home/ruilun_yang/QEMU_C/qemu-camp-2026-c-Gmikele/exercises/20_mybash
 
+# Create a temporary script that mybash will execute
+cat > /tmp/mybash_test_script.txt << 'SCRIPT'
+myfile bin/mybash
+myfile obj/myfile/myfile.o
 mysed s/unix/linux/ "unix is opensource. unix is free os."
+mytrans src/mytrans/text.txt
+mywc src/mytrans/text.txt
+SCRIPT
 
-mytrans /workspace/exercises/20_mybash/src/mytrans/text.txt
-
-mywc /workspace/exercises/20_mybash/src/mytrans/text.txt
+./bin/mybash /tmp/mybash_test_script.txt

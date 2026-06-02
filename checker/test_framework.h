@@ -50,7 +50,7 @@
      int test_duration_ms;
      int completed;
      int compiled_successfully;
-     char program_output[1024];
+     char program_output[100024];
      test_result_t individual_tests[32];
      int individual_test_count;
  } exercise_result_t;
