@@ -109,7 +109,7 @@
     }
     
      
-     char compile_output[4096] = {0};
+     char compile_output[100024] = {0};
      size_t bytes_read = fread(compile_output, 1, sizeof(compile_output) - 1, fp);
      int compile_status = pclose(fp);
      

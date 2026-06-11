@@ -49,7 +49,7 @@ clean:
 	@find $(EXERCISES_DIR) -type f -executable -delete 2>/dev/null || true
 	@find $(EXERCISES_DIR) -type f -name '*.o' -delete 2>/dev/null || true
 	@find $(EXERCISES_DIR) -type f -name '*.d' -delete 2>/dev/null || true
-	@find $(TESTS_DIR) -type f -executable -name "test_*" -delete 2>/dev/null || true
+	@find $(TESTS_DIR) -type f -executable -name "test_*" ! -name "*.sh" -delete 2>/dev/null || true
 	@rm -f test_results_summary.json 2>/dev/null || true
 	@echo "✅ 清理完成"
 
